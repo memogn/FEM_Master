@@ -1,5 +1,6 @@
 import sympy as sym
 import numpy as np
+import sys
 
 def basis(d, point_distribution='uniform', symbolic=False):
     """
@@ -98,8 +99,8 @@ def mesh_uniform(N_e, d, Omega=[0,1], symbolic=False):
     sympy expressions with the symbol h as element length.
     """
     if symbolic:
-        h = sp.Symbol('h')  # element length
-        dx = h*sp.Rational(1, d)  # node spacing
+        h = sym.Symbol('h')  # element length
+        dx = h*sym.Rational(1, d)  # node spacing
         nodes = [Omega[0] + i*dx for i in range(N_e*d + 1)]
     else:
         nodes = np.linspace(Omega[0], Omega[1], N_e*d + 1).tolist()
