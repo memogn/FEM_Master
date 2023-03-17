@@ -88,3 +88,21 @@ def assemble(nodes, elements, phi, f, symbolic=True):
                 A[elements[e][r],elements[e][s]] += A_e[r,s]
             b[elements[e][r]] += b_e[r]
     return A, b
+
+def mesh_uniform(N_e, d, Omega=[0,1], symbolic=False):
+    """
+    Return a 1D finite element mesh on Omega with N_e elements of
+    the polynomial degree d. The nodes are uniformly spaced.
+    Return nodes (coordinates) and elements (connectivity) lists.
+    If symbolic is True, the nodes are expressed as rational
+    sympy expressions with the symbol h as element length.
+    """
+    if symbolic:
+        h = sp.Symbol('h')  # element length
+        dx = h*sp.Rational(1, d)  # node spacing
+        nodes = [Omega[0] + i*dx for i in range(N_e*d + 1)]
+    else:
+        nodes = np.linspace(Omega[0], Omega[1], N_e*d + 1).tolist()
+    elements = [[e*d + i for i in range(d+1)] \
+                for e in range(N_e)]
+    return nodes, elements
