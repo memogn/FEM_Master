@@ -7,7 +7,7 @@ def basis(d, point_distribution='uniform', symbolic=False):
     If symbolic=True, return symbolic expressions, else
     return Python functions of X.
     point_distribution can be 'uniform' or 'Chebyshev'.
-    """
+    """ 
     X = sym.symbols('X')
     if d == 0:
         phi_sym = [1]
@@ -36,3 +36,18 @@ def Lagrange_polynomial(x, i, points):
         if k != i:
             p *= (x - points[k])/(points[i] - points[k])
     return p
+
+def element_matrix(phi, Omega_e, symbolic=True):
+    n = len(phi)
+    A_e = sym.zeros(n, n)
+    X = sym.Symbol('X')
+    if symbolic:
+        h = sym.Symbol('h')
+    else:
+        h = Omega_e[1] - Omega_e[0]
+    detJ = h/2  # dx/dX
+    for r in range(n):
+        for s in range(r, n):
+            A_e[r,s] = sym.integrate(phi[r]*phi[s]*detJ, (X, -1, 1))
+            A_e[s,r] = A_e[r,s]
+    return A_e
