@@ -51,3 +51,19 @@ def element_matrix(phi, Omega_e, symbolic=True):
             A_e[r,s] = sym.integrate(phi[r]*phi[s]*detJ, (X, -1, 1))
             A_e[s,r] = A_e[r,s]
     return A_e
+
+def element_vector(f, phi, Omega_e, symbolic=True):
+    n = len(phi)
+    b_e = sym.zeros(n, 1)
+    # Make f a function of X
+    X = sym.Symbol('X')
+    if symbolic:
+        h = sym.Symbol('h')
+    else:
+        h = Omega_e[1] - Omega_e[0]
+    x = (Omega_e[0] + Omega_e[1])/2 + h/2*X  # mapping
+    f = f.subs('x', x)  # substitute mapping formula for x
+    detJ = h/2  # dx/dX
+    for r in range(n):
+        b_e[r] = sym.integrate(f*phi[r]*detJ, (X, -1, 1))
+    return b_e
