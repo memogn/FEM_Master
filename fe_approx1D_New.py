@@ -1,4 +1,5 @@
 import sympy as sym
+import numpy as np
 
 def basis(d, point_distribution='uniform', symbolic=False):
     """
