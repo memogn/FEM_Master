@@ -67,3 +67,23 @@ def element_vector(f, phi, Omega_e, symbolic=True):
     for r in range(n):
         b_e[r] = sym.integrate(f*phi[r]*detJ, (X, -1, 1))
     return b_e
+
+def assemble(nodes, elements, phi, f, symbolic=True):
+    N_n, N_e = len(nodes), len(elements)
+    if symbolic:
+        A = sym.zeros(N_n, N_n)
+        b = sym.zeros(N_n, 1)    # note: (N_n, 1) matrix
+    else:
+        A = np.zeros((N_n, N_n))
+        b = np.zeros(N_n)
+    for e in range(N_e):
+        Omega_e = [nodes[elements[e][0]], nodes[elements[e][-1]]]
+
+        A_e = element_matrix(phi, Omega_e, symbolic)
+        b_e = element_vector(f, phi, Omega_e, symbolic)
+
+        for r in range(len(elements[e])):
+            for s in range(len(elements[e])):
+                A[elements[e][r],elements[e][s]] += A_e[r,s]
+            b[elements[e][r]] += b_e[r]
+    return A, b
