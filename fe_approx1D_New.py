@@ -107,3 +107,18 @@ def mesh_uniform(N_e, d, Omega=[0,1], symbolic=False):
     elements = [[e*d + i for i in range(d+1)] \
                 for e in range(N_e)]
     return nodes, elements
+
+def mesh_symbolic(N_e, d, Omega=[0,1]):
+    """
+    Return a 1D finite element mesh on Omega with N_e elements of
+    the polynomial degree d. The nodes are uniformly spaced.
+    Return nodes (coordinates) and elements (connectivity)
+    lists, using symbols for the coordinates (rational expressions
+    with h as the uniform element length).
+    """
+    h = sym.Symbol('h')  # element length
+    dx = h*sym.Rational(1, d)  # node spacing
+    nodes = [Omega[0] + i*dx for i in range(N_e*d + 1)]
+    elements = [[e*d + i for i in range(d+1)] \
+                for e in range(N_e)]
+    return nodes, elements
