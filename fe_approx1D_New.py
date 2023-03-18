@@ -141,3 +141,81 @@ def mesh_symbolic(N_e, d, Omega=[0,1]):
     elements = [[e*d + i for i in range(d+1)] \
                 for e in range(N_e)]
     return nodes, elements
+
+def affine_mapping(X, Omega_e):
+    x_L, x_R = Omega_e
+    return 0.5*(x_L + x_R) + 0.5*(x_R - x_L)*X
+
+def phi_r(r, X, d):
+    """
+    Return local basis function phi_r at local point X in
+    a 1D element with d+1 nodes.
+    """
+    nodes = np.linspace(-1, 1, d+1)
+    return Lagrange_polynomial(X, r, nodes)
+
+def u_glob(U, elements, nodes, resolution_per_element=51):
+    """
+    Compute (x, y) coordinates of a curve y = u(x), where u is a
+    finite element function: u(x) = sum_i of U_i*phi_i(x).
+    Method: Run through each element and compute curve coordinates
+    over the element.
+    """
+    x_patches = []
+    u_patches = []
+    for e in range(len(elements)):
+        Omega_e = (nodes[elements[e][0]], nodes[elements[e][-1]])
+        local_nodes = elements[e]
+        d = len(local_nodes) - 1
+        X = np.linspace(-1, 1, resolution_per_element)
+        x = affine_mapping(X, Omega_e)
+        x_patches.append(x)
+        u_element = 0
+        for r in range(len(local_nodes)):
+            i = local_nodes[r]  # global node number
+            u_element += U[i]*phi_r(r, X, d)
+        u_patches.append(u_element)
+    x = np.concatenate(x_patches)
+    u = np.concatenate(u_patches)
+    return x, u
+
+def approximate(f, symbolic=False, d=1, N_e=4,
+                Omega=[0, 1], filename='tmp'):
+    phi = basis(d, symbolic=True)
+    print( 'phi basis (reference element):\n', phi)
+
+    nodes, elements = mesh_uniform(N_e, d, Omega, symbolic)
+    A, b = assemble(nodes, elements, phi, f, symbolic=symbolic)
+
+    print( 'nodes:', nodes)
+    print( 'elements:', elements)
+    print( 'A:\n', A)
+    print( 'b:\n', b)
+    print( sym.latex(A, mode='plain'))
+    #print( sym.latex(b, mode='plain'))
+
+    if symbolic:
+        c = A.LUsolve(b)
+    else:
+        c = np.linalg.solve(A, b)
+
+    print( 'c:\n', c)
+
+    print( 'Plain interpolation/collocation:')
+    x = sym.Symbol('x')
+    f = sym.lambdify([x], f, modules='numpy')
+    try:
+        f_at_nodes = [f(xc) for xc in nodes]
+    except NameError as e:
+        raise NameError('numpy does not support special function:\n%s' % e)
+    print( f_at_nodes)
+
+    if not symbolic and filename is not None:
+        xf = np.linspace(Omega[0], Omega[1], 10001)
+        U = np.asarray(c)
+        xu, u = u_glob(U, elements, nodes)
+        plt.plot(xu, u, '-',
+                 xf, f(xf), '--')
+        plt.legend(['u', 'f'])
+        plt.savefig(filename + '.pdf')
+        plt.savefig(filename + '.png')
