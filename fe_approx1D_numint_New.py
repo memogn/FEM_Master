@@ -3,6 +3,8 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 
+from fe_approx1D_New import *
+
 
 def mesh_uniform(N_e, d, Omega=[0,1], symbolic=False):
     """
