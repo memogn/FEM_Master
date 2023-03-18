@@ -1,3 +1,8 @@
+import sympy as sym
+import numpy as np
+import sys
+import matplotlib.pyplot as plt
+
 
 def mesh_uniform(N_e, d, Omega=[0,1], symbolic=False):
     """
