@@ -129,7 +129,7 @@ def assemble(vertices, cells, dof_map, phi, f,
         A = sym.zeros(N_n, N_n)
         b = sym.zeros(N_n, 1)   # note: (N_n, 1) matrix
     else:
-        A = np.zeros(N_n, N_n)
+        A = np.zeros((N_n, N_n))
         b = np.zeros(N_n)
     for e in range(N_e):
         Omega_e = [vertices[cells[e][0]], vertices[cells[e][1]]]
