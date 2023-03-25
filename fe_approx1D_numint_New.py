@@ -2,6 +2,7 @@ import sympy as sym
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
+from mpmath import mp
 
 from fe_approx1D_New import *
 
@@ -82,7 +83,7 @@ def element_vector(f, phi, Omega_e, symbolic=True, numint=None):
                 # integrand may still contain symbols like sym.pi that
                 # prevents numerical evaluation...
                 try:
-                    I = sym.mpmath.quad(integrand, [-1, 1])
+                    I = mp.quad(integrand, [-1, 1])
                 except Exception as e:
                     print( 'Could not integrate f*phi[r] numerically:')
                     print( e)
